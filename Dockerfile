@@ -1,10 +1,11 @@
 FROM python:3.11-slim
 
-# Install system dependencies for HEIC, JPEG, OpenCV, and build tools
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libheif-dev \
     libjpeg-dev \
     libgl1 \
+    libglib2.0-0 \               # ← this fixes the libgthread-2.0.so.0 issue
     gcc \
     curl \
     ca-certificates \
@@ -12,15 +13,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
 COPY . .
 
-# Create tmp directory
 RUN mkdir -p /app/tmp
 
 ENV PYTHONUNBUFFERED=1 \
