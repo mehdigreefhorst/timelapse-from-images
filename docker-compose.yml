@@ -14,7 +14,7 @@ services:
 
     # GPU example (commented)
     # deploy:
-    #   resources:
+    #   resources: 
     #     reservations:
     #       devices:
     #         - capabilities: ["gpu"]

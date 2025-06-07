@@ -1,26 +1,26 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
-# Install build and runtime dependencies
-RUN apk add --no-cache \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
     ffmpeg \
     curl \
     ca-certificates \
-    build-base \
-    cmake \
-    ninja \
-    libffi-dev \
-    musl-dev \
-    python3-dev
-
-# Install Python build helpers + pycparser early to avoid cffi errors
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel pycparser
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# Copy requirements first for better caching
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies (pre-compiled wheels available)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
+# Copy application code
 COPY . .
+
+# Create tmp directory
+RUN mkdir -p /app/tmp
 
 ENV PYTHONUNBUFFERED=1 \
     SUPABASE_BUCKET=timelapsevideos
