@@ -4,3 +4,5 @@ pillow
 numpy
 supabase
 python-dotenv
+pillow
+pillow-heif
