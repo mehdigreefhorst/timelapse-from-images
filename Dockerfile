@@ -20,7 +20,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY convert_heic.py worker.py ./
+COPY image_convert.py worker.py ./
 RUN mkdir /tmp/out
 
 CMD ["python", "worker.py"]
