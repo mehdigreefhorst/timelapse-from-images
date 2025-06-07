@@ -10,7 +10,7 @@ def convert_heic_to_jpg(source_folder, jpg_folder):
           src_path = os.path.join(source_folder, filename)
           if filename.lower().endswith('.heic'):
               jpg_path = os.path.join(jpg_folder, os.path.splitext(filename)[0] + '.jpg')
-              subprocess.run(['convert', '-s', 'format', 'jpeg', src_path, '--out', jpg_path])
+              subprocess.run(['magick', '-s', 'format', 'jpeg', src_path, '--out', jpg_path]) # convert should become sips when running on macbook
               print(f"Converted: {filename} -> {jpg_path}")
           else:
               dst_path = os.path.join(jpg_folder, filename)
