@@ -1,27 +1,26 @@
 FROM python:3.11-slim
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libheif-dev \
-    libjpeg-dev \
-    libgl1 \
-    libglib2.0-0 \               # ← this fixes the libgthread-2.0.so.0 issue
-    gcc \
-    curl \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    exiftool build-essential autoconf libtool cmake wget ffmpeg \
+    imagemagick libmagickwand-dev curl ca-certificates \
+    git && \
+  cd /usr/src && \
+  git clone https://github.com/strukturag/libde265.git && \
+  cd libde265 && ./autogen.sh && ./configure && make -j$(nproc) && make install && \
+  cd /usr/src && \
+  git clone https://github.com/strukturag/libheif.git && \
+  cd libheif && mkdir build && cd build && cmake --preset=release .. && make -j$(nproc) && make install && \
+  wget https://github.com/ImageMagick/ImageMagick/archive/refs/tags/7.1.1-26.tar.gz && \
+  tar xf 7.1.1-26.tar.gz && \
+  cd ImageMagick-7.1.1-26* && ./configure --with-heic=yes && make -j$(nproc) && make install && \
+  ldconfig && \
+  rm -rf /var/lib/apt/lists/* /usr/src/*
 
 WORKDIR /app
-
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-
-RUN mkdir -p /app/tmp
-
-ENV PYTHONUNBUFFERED=1 \
-    SUPABASE_BUCKET=timelapsevideos
+COPY convert_heic.py worker.py ./
+RUN mkdir /tmp/out
 
 CMD ["python", "worker.py"]
