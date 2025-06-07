@@ -1,9 +1,10 @@
 FROM python:3.11-slim
 
-# Install system dependencies for HEIC, JPEG and build tools
+# Install system dependencies for HEIC, JPEG, OpenCV, and build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libheif-dev \
     libjpeg-dev \
+    libgl1 \
     gcc \
     curl \
     ca-certificates \
