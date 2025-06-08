@@ -1,26 +1,19 @@
-FROM python:3.11-slim
+# ────────────────────────────────
+# Dockerfile — tiny & reliable
+# uses python:3.12-alpine + ffmpeg
+# ────────────────────────────────
+FROM python:3.1-alpine
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    exiftool build-essential autoconf libtool cmake wget ffmpeg \
-    imagemagick libmagickwand-dev curl ca-certificates \
-    git && \
-  cd /usr/src && \
-  git clone https://github.com/strukturag/libde265.git && \
-  cd libde265 && ./autogen.sh && ./configure && make -j$(nproc) && make install && \
-  cd /usr/src && \
-  git clone https://github.com/strukturag/libheif.git && \
-  cd libheif && mkdir build && cd build && cmake --preset=release .. && make -j$(nproc) && make install && \
-  wget https://github.com/ImageMagick/ImageMagick/archive/refs/tags/7.1.1-26.tar.gz && \
-  tar xf 7.1.1-26.tar.gz && \
-  cd ImageMagick-7.1.1-26* && ./configure --with-heic=yes && make -j$(nproc) && make install && \
-  ldconfig && \
-  rm -rf /var/lib/apt/lists/* /usr/src/*
+# add ffmpeg (and curl, certificates) via apk
+RUN apk add --no-cache ffmpeg curl ca-certificates libheif1 libde265-0 heif-gdk-pixbuf libheif-examples
 
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY image_convert.py worker.py ./
-RUN mkdir /tmp/out
+COPY . .
+
+ENV PYTHONUNBUFFERED=1 \
+    SUPABASE_BUCKET=timelapsevideos
 
 CMD ["python", "worker.py"]
