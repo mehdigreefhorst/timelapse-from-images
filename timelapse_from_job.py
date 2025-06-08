@@ -44,7 +44,7 @@ def timelapse_from_images(input_folder_path, input_settings: InputSettings):
     images_folder = fullres_output
 
     output_standard_timelapse = input_path / "timelapse.mp4"
-    fps = 1/input_settings
+    fps = 1/input_settings.duration_per_image
     create_timelapse(str(images_folder), str(output_standard_timelapse), fps=fps)
     print(f"[INFO] Saved timelapse to: {output_standard_timelapse}")
 
