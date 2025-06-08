@@ -9,6 +9,8 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 import re
 
+from timelapse import InputSettings
+
 def get_optimal_process_count():
     return multiprocessing.cpu_count()
 
@@ -56,11 +58,11 @@ def add_day_label(image, filename, base_date="20250521"):
     return image
 
 def process_single_image(args):
-    image_file, images_folder, output_folder, reference_img_path = args
+    image_file, images_folder, output_folder, reference_img_path, target_width = args
 
     try:
         reference_img = cv2.imread(reference_img_path)
-        reference_img, ref_scale = resize_image(reference_img)
+        reference_img, ref_scale = resize_image(reference_img, target_width)
         reference_gray = cv2.cvtColor(reference_img, cv2.COLOR_BGR2GRAY)
         feature_detector = cv2.SIFT_create()
         reference_keypoints, reference_descriptors = feature_detector.detectAndCompute(reference_gray, None)
@@ -71,7 +73,7 @@ def process_single_image(args):
             logging.error(f"Could not read image: {current_path}")
             return None
 
-        current_img, curr_scale = resize_image(current_img)
+        current_img, curr_scale = resize_image(current_img, target_width)
         current_gray = cv2.cvtColor(current_img, cv2.COLOR_BGR2GRAY)
 
         current_keypoints, current_descriptors = feature_detector.detectAndCompute(current_gray, None)
@@ -104,7 +106,7 @@ def process_single_image(args):
         logging.error(f"Error processing {image_file}: {str(e)}")
         return None
 
-def align_images(images_folder, output_folder, transform_path):
+def align_images(images_folder, output_folder, transform_path, input_settings: InputSettings):
     os.makedirs(output_folder, exist_ok=True)
     image_files = sorted([f for f in os.listdir(images_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))])
 
@@ -117,13 +119,13 @@ def align_images(images_folder, output_folder, transform_path):
     if ref_img is None:
         logging.error("Could not read reference image.")
         return
-
-    ref_img_resized, _ = resize_image(ref_img)
+  
+    ref_img_resized, _ = resize_image(ref_img, input_settings.resolution_dimensions[0])
     ref_img_resized = add_day_label(ref_img_resized, image_files[0])
     cv2.imwrite(os.path.join(output_folder, image_files[0]), ref_img_resized)
 
-    tasks = [(image_files[i], images_folder, output_folder, reference_path) for i in range(1, len(image_files))]
-
+    tasks = [(image_files[i], images_folder, output_folder, reference_path, input_settings.resolution_dimensions[0]) for i in range(1, len(image_files))]
+    
     with ProcessPoolExecutor(max_workers=get_optimal_process_count()) as executor:
         results = list(executor.map(process_single_image, tasks))
         transforms = [r for r in results if r]

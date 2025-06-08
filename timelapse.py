@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Tuple
 import cv2
 import os
 import glob
@@ -21,12 +21,13 @@ class InputSettings(BaseModel):
     duration_per_image: float = 0.5
     style: Literal['standard', 'smooth'] = "standard"
     alignment: bool = True
+    resolution_dimensions: Tuple[int, int] = (1920, 1080)
 
 def extract_input_settings(job: dict) -> InputSettings:
     input_settings = InputSettings.model_validate(job)
     return input_settings
 
-def create_timelapse(images_folder, output_video_path, fps=2):
+def create_timelapse(images_folder, output_video_path, fps=2, resolution_overwrite=None):
     """
     Create a timelapse video from a sequence of images
     
@@ -56,6 +57,8 @@ def create_timelapse(images_folder, output_video_path, fps=2):
     
     height, width, layers = first_img.shape
     size = (width, height)
+    if resolution_overwrite is not None:
+        size = resolution_overwrite
     
     # Define codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # MP4 codec

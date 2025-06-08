@@ -1,7 +1,7 @@
 from pathlib import Path
 from align_images_improved import align_images, apply_to_fullres
 import os
-from image_convert import convert_heic_dng_to_jpg
+from image_convert import convert_heic_dng_to_jpg, decrease_quality
 from timelapse import InputSettings, create_slow_motion_transition, create_timelapse
 
 
@@ -12,11 +12,11 @@ def timelapse_from_images(input_folder_path, input_settings: InputSettings):
     input_path = Path(input_folder_path)
     contains_heic_dng = any((f.lower().endswith(".heic") or f.lower().endswith(".dng")) for f in os.listdir(input_path))
 
-    if contains_heic_dng:
-        fullres_dir = input_path / "converted_jpg"
-        convert_heic_dng_to_jpg(input_path, fullres_dir)
-    else:
-        fullres_dir = input_path
+    fullres_dir = input_path / "converted_jpg"
+    convert_heic_dng_to_jpg(input_path, fullres_dir)
+
+    print("now decreasing quality")
+    decrease_quality(fullres_dir, input_settings.resolution_dimensions)
 
     reduced_output = input_path / "processed"
     fullres_output = input_path / "fullres_aligned"
@@ -31,7 +31,7 @@ def timelapse_from_images(input_folder_path, input_settings: InputSettings):
         fullres_output = fullres_dir
 
     else:
-        align_images(str(fullres_dir), str(reduced_output), str(transform_file))
+        align_images(str(fullres_dir), str(reduced_output), str(transform_file), input_settings)
         print(fullres_dir)
         print("os.listdir(fullres_dir) = ", os.listdir(fullres_dir))
         image_files = sorted([f for f in os.listdir(fullres_dir) if f.lower().endswith(('.jpg', '.jpeg'))])
