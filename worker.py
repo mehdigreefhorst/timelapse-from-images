@@ -1,12 +1,10 @@
 import os
 import shutil
 import time
-from typing import Literal
 from supabase import create_client, Client
 from timelapse import extract_input_settings
 from timelapse_from_job import timelapse_from_images
 from dotenv import load_dotenv
-from pydantic import BaseModel, constr
 
 load_dotenv()
 SUPABASE_URL = os.environ["SUPABASE_URL"]

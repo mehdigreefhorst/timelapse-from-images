@@ -2,7 +2,6 @@ from typing import Literal
 import cv2
 import os
 import glob
-import numpy as np
 from pathlib import Path
 import logging
 
