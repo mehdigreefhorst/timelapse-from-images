@@ -1,10 +1,8 @@
 from pathlib import Path
 from align_images_improved import align_images, apply_to_fullres
 import os
-import datetime
 from image_convert import convert_heic_to_jpg
-from timelapse import create_slow_motion_transition, create_timelapse
-from worker import InputSettings
+from timelapse import InputSettings, create_slow_motion_transition, create_timelapse
 
 
 

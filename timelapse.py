@@ -1,9 +1,12 @@
+from typing import Literal
 import cv2
 import os
 import glob
 import numpy as np
 from pathlib import Path
 import logging
+
+from pydantic import BaseModel
 
 # Configure logging
 logging.basicConfig(
@@ -14,6 +17,15 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+
+class InputSettings(BaseModel):
+    duration_per_image: float = 0.5
+    style: Literal['standard', 'smooth'] = "standard"
+    alignment: bool = True
+
+def extract_input_settings(job: dict) -> InputSettings:
+    input_settings = InputSettings.model_validate(job)
+    return input_settings
 
 def create_timelapse(images_folder, output_video_path, fps=2):
     """

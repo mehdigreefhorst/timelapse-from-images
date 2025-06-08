@@ -3,6 +3,7 @@ import shutil
 import time
 from typing import Literal
 from supabase import create_client, Client
+from timelapse import extract_input_settings
 from timelapse_from_job import timelapse_from_images
 from dotenv import load_dotenv
 from pydantic import BaseModel, constr
@@ -57,16 +58,6 @@ def upload_aligned_photos(job, images_folder_path: str) -> str:
         storage_path_file = os.path.join(storage_path, file_name)
         with open(file_path, "rb") as f:
             supabase.storage.from_(BUCKET_NAME).upload(storage_path_file, f.read(), {"content-type": "image/jpg"})
-
-
-class InputSettings(BaseModel):
-    duration_per_image: float = 0.5
-    style: Literal['standard', 'smooth'] = "standard"
-    alignment: bool = True
-
-def extract_input_settings(job: dict) -> InputSettings:
-    input_settings = InputSettings.model_validate(job)
-    return input_settings
 
 def process_job(job):
     print(f"Processing job: {job['id']}")
