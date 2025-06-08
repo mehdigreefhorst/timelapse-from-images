@@ -5,7 +5,7 @@
 FROM python:3.11-slim
 
 # add ffmpeg (and curl, certificates) via apk
-RUN apt-get update && apt-get install -y --no-cache ffmpeg curl ca-certificates libheif1 libde265-0 heif-gdk-pixbuf libheif-examples
+RUN apt-get update && apt-get install -y ffmpeg curl ca-certificates libheif1 libde265-0 heif-gdk-pixbuf libheif-examples
 
 WORKDIR /app
 COPY requirements.txt .
