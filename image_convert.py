@@ -1,6 +1,10 @@
 import os
 import shutil
 import subprocess
+from pillow_heif import register_heif_opener
+register_heif_opener()
+from PIL import Image
+
 
 
 def convert_heic_to_jpg(source_folder, jpg_folder):
@@ -9,9 +13,14 @@ def convert_heic_to_jpg(source_folder, jpg_folder):
         if os.path.isfile(os.path.join(source_folder, filename)):
           src_path = os.path.join(source_folder, filename)
           if filename.lower().endswith('.heic'):
-              jpg_path = os.path.join(jpg_folder, os.path.splitext(filename)[0] + '.jpg')
-              subprocess.run(['heif-convert', src_path, jpg_path], check=True)
-              print(f"Converted: {filename} -> {jpg_path}")
+              try:
+                  with Image.open(src_path) as im:
+                      rgb_im = im.convert("RGB")
+                      output_path = os.path.join(jpg_folder, os.path.spliext(filename))
+                      rgb_im.save(output_path, "JPEG", quality=95)
+                      print(f"Converted: {filename} -> {output_path}")
+              except Exception as e:
+                  print(f"Failed to convert {filename}: {e}")
           else:
               dst_path = os.path.join(jpg_folder, filename)
               shutil.copy2(src_path, dst_path)
