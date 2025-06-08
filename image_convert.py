@@ -13,14 +13,12 @@ def convert_heic_to_jpg(source_folder, jpg_folder):
         if os.path.isfile(os.path.join(source_folder, filename)):
           src_path = os.path.join(source_folder, filename)
           if filename.lower().endswith('.heic'):
-              try:
-                  with Image.open(src_path) as im:
-                      rgb_im = im.convert("RGB")
-                      output_path = os.path.join(jpg_folder, os.path.splitext(filename)[0])
-                      rgb_im.save(output_path, "JPEG", quality=95)
-                      print(f"Converted: {filename} -> {output_path}")
-              except Exception as e:
-                  print(f"Failed to convert {filename}: {e}")
+              with Image.open(src_path) as im:
+                  rgb_im = im.convert("RGB")
+                  output_path = os.path.join(jpg_folder, os.path.splitext(filename)[0])
+                  rgb_im.save(output_path, "JPEG", quality=95)
+                  print(f"Converted: {filename} -> {output_path}")
+
           else:
               dst_path = os.path.join(jpg_folder, filename)
               shutil.copy2(src_path, dst_path)
