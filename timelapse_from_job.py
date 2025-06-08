@@ -10,11 +10,11 @@ def timelapse_from_images(input_folder_path, input_settings: InputSettings):
 
 
     input_path = Path(input_folder_path)
-    contains_heic = any(f.lower().endswith(".heic") for f in os.listdir(input_path))
+    contains_heic_dng = any((f.lower().endswith(".heic") or f.lower().endswith(".dng")) for f in os.listdir(input_path))
 
-    if contains_heic:
+    if contains_heic_dng:
         fullres_dir = input_path / "converted_jpg"
-        convert_heic_to_jpg(input_path, fullres_dir)
+        convert_heic_dng_to_jpg(input_path, fullres_dir)
     else:
         fullres_dir = input_path
 
