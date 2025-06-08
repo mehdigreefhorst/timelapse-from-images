@@ -16,7 +16,7 @@ def convert_heic_to_jpg(source_folder, jpg_folder):
               try:
                   with Image.open(src_path) as im:
                       rgb_im = im.convert("RGB")
-                      output_path = os.path.join(jpg_folder, os.path.spliext(filename))
+                      output_path = os.path.join(jpg_folder, os.path.splitext(filename)[0])
                       rgb_im.save(output_path, "JPEG", quality=95)
                       print(f"Converted: {filename} -> {output_path}")
               except Exception as e:
