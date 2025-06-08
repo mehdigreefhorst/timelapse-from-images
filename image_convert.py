@@ -63,10 +63,9 @@ def decrease_quality(input_folder, target_resolution):
             new_size = (int(w * scale), int(h * scale))
             resized_img = cv2.resize(img, new_size, interpolation=cv2.INTER_AREA), scale
         
-        print("file_path = ", file_path)
-        print("resized_img = ", type(resized_img))
+        print("resized_img = ", resized_img)
         # Overwrite the original with reduced quality
-        success = cv2.imwrite(file_path, resized_img, [cv2.IMWRITE_JPEG_QUALITY, 100])
+        success = cv2.imwrite(file_path, resized_img[0], [cv2.IMWRITE_JPEG_QUALITY, 100])
         if success:
             print(f"Resized and saved: {filename}")
         else:
