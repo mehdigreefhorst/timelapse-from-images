@@ -1,12 +1,20 @@
 version: "3.9"
 
 services:
-  heic-converter:
-    build: .
+  timelapse-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: timelapse-worker
+    restart: unless-stopped
+    env_file:
+      - .env
     volumes:
-      - ./input:/data/in:ro
-      - ./output:/data/out
-    environment:
-      SOURCE_DIR: /data/in
-      OUTPUT_DIR: /data/out
-    restart: on-failure
+      - ./tmp:/app/tmp           # optional persistence
+
+    # GPU example (commented)
+    # deploy:
+    #   resources: 
+    #     reservations:
+    #       devices:
+    #         - capabilities: ["gpu"]
