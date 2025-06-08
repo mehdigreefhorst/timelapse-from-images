@@ -2,7 +2,7 @@
 # Dockerfile — tiny & reliable
 # uses python:3.12-alpine + ffmpeg
 # ────────────────────────────────
-FROM python:3.12-alpine
+FROM python:3.11-slim
 
 # add ffmpeg (and curl, certificates) via apk
 RUN apt-get update && apt-get install -y --no-cache ffmpeg curl ca-certificates libheif1 libde265-0 heif-gdk-pixbuf libheif-examples
