@@ -6,3 +6,4 @@ supabase
 python-dotenv
 pillow
 pillow-heif
+pydantic

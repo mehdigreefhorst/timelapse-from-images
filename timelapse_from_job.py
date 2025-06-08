@@ -4,10 +4,11 @@ import os
 import datetime
 from image_convert import convert_heic_to_jpg
 from timelapse import create_slow_motion_transition, create_timelapse
+from worker import InputSettings
 
 
 
-def timelapse_from_images(input_folder_path, input_settings=None):
+def timelapse_from_images(input_folder_path, input_settings: InputSettings):
 
 
     input_path = Path(input_folder_path)
@@ -28,20 +29,25 @@ def timelapse_from_images(input_folder_path, input_settings=None):
     print(f"[INFO] Aligned full-resolution output: {fullres_output}")
     print(f"[INFO] Transformation file: {transform_file}")
 
-    align_images(str(fullres_dir), str(reduced_output), str(transform_file))
-    print(fullres_dir)
-    print("os.listdir(fullres_dir) = ", os.listdir(fullres_dir))
-    image_files = sorted([f for f in os.listdir(fullres_dir) if f.lower().endswith(('.jpg', '.jpeg'))])
-    if not image_files:
-        raise FileNotFoundError("No .jpg images found in the input folder.")
+    if input_settings.alignment == False:
+        fullres_output = fullres_dir
 
-    first_image = image_files[0]
-    apply_to_fullres(str(transform_file), str(fullres_dir), str(fullres_output), first_image)
+    else:
+        align_images(str(fullres_dir), str(reduced_output), str(transform_file))
+        print(fullres_dir)
+        print("os.listdir(fullres_dir) = ", os.listdir(fullres_dir))
+        image_files = sorted([f for f in os.listdir(fullres_dir) if f.lower().endswith(('.jpg', '.jpeg'))])
+        if not image_files:
+            raise FileNotFoundError("No .jpg images found in the input folder.")
+
+        first_image = image_files[0]
+        apply_to_fullres(str(transform_file), str(fullres_dir), str(fullres_output), first_image)
 
     images_folder = fullres_output
 
     output_standard_timelapse = input_path / "timelapse.mp4"
-    create_timelapse(str(images_folder), str(output_standard_timelapse), fps=1)
+    fps = 1/input_settings
+    create_timelapse(str(images_folder), str(output_standard_timelapse), fps=fps)
     print(f"[INFO] Saved timelapse to: {output_standard_timelapse}")
 
     output_smooth_timelapse = input_path / "timelapse_smooth.mp4"

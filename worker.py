@@ -1,9 +1,11 @@
 import os
 import shutil
 import time
+from typing import Literal
 from supabase import create_client, Client
 from timelapse_from_job import timelapse_from_images
 from dotenv import load_dotenv
+from pydantic import BaseModel, constr
 
 load_dotenv()
 SUPABASE_URL = os.environ["SUPABASE_URL"]
@@ -55,14 +57,25 @@ def upload_aligned_photos(job, images_folder_path: str) -> str:
         storage_path_file = os.path.join(storage_path, file_name)
         with open(file_path, "rb") as f:
             supabase.storage.from_(BUCKET_NAME).upload(storage_path_file, f.read(), {"content-type": "image/jpg"})
-    
+
+
+class InputSettings(BaseModel):
+    duration_per_image: float = 0.5
+    style: Literal['standard', 'smooth'] = "standard"
+    alignment: bool = True
+
+def extract_input_settings(job: dict) -> InputSettings:
+    input_settings = InputSettings.model_validate(job)
+    return input_settings
 
 def process_job(job):
     print(f"Processing job: {job['id']}")
     mark_job_processing(job["id"])
     local_input = f"tmp/{job['id']}"
     download_folder(job["folder_path"], local_input)
-    output_video_path, aligned_images_path = timelapse_from_images(local_input)  # ✅ call your existing processing pipeline
+    input_settings = extract_input_settings(job)
+    print("input settings = ", input_settings)
+    output_video_path, aligned_images_path = timelapse_from_images(local_input, input_settings)  # ✅ call your existing processing pipeline
     signed_url, signed_download_url = upload_video(job, output_video_path)
     #upload_aligned_photos(job, aligned_images_path)
     mark_job_done(job["id"], signed_url, signed_download_url)
